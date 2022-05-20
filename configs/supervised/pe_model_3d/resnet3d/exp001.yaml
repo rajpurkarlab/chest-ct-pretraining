@@ -1,0 +1,76 @@
+experiment_name: 'rsna_series_pe_resnet3d_101'
+phase: 'train'
+
+lightning:
+  trainer:
+    gpus: '0'
+    #distributed_backend: 'ddp'
+    max_epochs: 1
+    lr: 1e-4
+    precision: 16
+    auto_lr_find: false
+    benchmark: true
+    profiler: 'simple'
+  checkpoint_callback:
+    monitor: 'val_auroc'
+    dirpath: './data/ckpt'
+    save_last: true
+    mode: 'max'
+    save_top_k: 1
+  early_stopping_callback:
+    monitor: 'val_auroc'
+    min_delta: 0.00
+    patience: 5
+    verbose: False
+    mode: 'max'
+  logger:
+    logger_type: 'WandbLogger'
+    save_dir: './data/logger/'
+    name: 'pe_model_3d'
+    project: 'pe_models'
+
+
+model: 
+  type: 'model_3d'
+  model_name: 'resnet_3d_18'
+  freeze_cnn: false
+  pretrained: true
+
+data: 
+  use_hdf5: true
+  dataset: 'rsna'
+  type: '3d'    # 1d, 2d, 3d, window 
+  targets: 'rsna_pe_target'
+  channels: 'repeat'  # repeat, neighbor, window
+  weighted_sample: true
+  num_slices: 150
+  sample_strategy: 'random'  # random, fix
+  imsize: 256
+    
+transforms: 
+  Rotate:
+    rotate_limit: 20
+    p: 1.0
+  RandomCrop:
+    height: 224
+    width: 224
+  RandomContrast:
+    limit: 0.1
+    p: 1.0
+  
+train: 
+  batch_size: 2
+  num_workers: 12
+  weighted_loss: false
+  loss_fn: 
+    name: 'BCEWithLogitsLoss'
+  optimizer: 
+    name: 'Adam'
+    weight_decay: 1e-6
+  scheduler: 
+    name: 'ReduceLROnPlateau'
+    monitor: 'val_loss'
+    interval: 'epoch'
+    frequency: 3
+    factor: 0.5
+    patience: 5

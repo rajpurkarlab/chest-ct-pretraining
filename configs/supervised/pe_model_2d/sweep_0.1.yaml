@@ -1,0 +1,25 @@
+program: run.py
+command:
+  - ${env}
+  - ${interpreter}
+  - ${program}
+  - "--config"
+  - "/home/mschuang/pe_models_benchmark/configs/supervised/pe_model_2d/model_2d_0.1.yaml"
+  - "--gpus"
+  - "0"
+  - "--train"
+method: grid
+metric:
+  name: val/mean_auroc.best
+  goal: maximize
+parameters:
+  model.model_name:
+    distribution: categorical
+    values:
+      - 'resnet_18'
+      - 'resnext_101'
+  model.pretrained:
+    distribution: categorical
+    values:
+      - true
+      - false

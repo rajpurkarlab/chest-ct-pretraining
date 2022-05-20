@@ -1,0 +1,77 @@
+experiment_name: 'rsna_slice_pe_vit_base_16'
+trial_name: 'ct_wpnnclr_0.0001'
+phase: 'wpnnclr_finetune'
+
+
+lightning:
+  trainer:
+    gpus: 1
+    #distributed_backend: 'ddp'
+    max_epochs: 100
+    lr: 0.0001
+    precision: 16
+    auto_lr_find: false
+    benchmark: true
+  checkpoint_callback:
+    monitor: 'val/mean_auroc'
+    dirpath: './data/ckpt'
+    save_last: true
+    mode: 'max'
+    save_top_k: 10
+  early_stopping_callback:
+    monitor: 'val/mean_auroc'
+    min_delta: 0.00
+    patience: 100
+    verbose: False
+    mode: 'max'
+  logger:
+    logger_type: 'WandbLogger'
+    save_dir: './data/logger/'
+    name: 'pe_model_2d'
+    project: 'pe_models_benchmark'
+
+
+model: 
+  type: 'model_2d'
+  model_name: 'vit_base_16'
+  freeze_cnn: true
+  pretrained: false
+  checkpoint: '/home/mschuang/pe_models_benchmark/data/ckpt/pnnclr_positive_only/1/2022_02_22_06_25_56/epoch=48-step=238433.ckpt'
+
+data: 
+  use_hdf5: false
+  dataset: 'rsna'
+  type: '2d'     # 1d, 2d, 3d, window 
+  targets: 'rsna_pe_slice_target'
+  channels: 'window'   # repeat, neighbor, window
+  weighted_sample: true
+  positive_only: false
+  imsize: 256
+    
+transforms: 
+  type: 'imagenet'
+  ShiftScaleRotate:
+    shift_limit: 0.05
+    scale_limit: 0.05
+    rotate_limit: 20
+    p: 0.5
+  RandomCrop:
+    height: 224
+    width: 224
+  
+train: 
+  batch_size: 256        
+  num_workers: 12
+  weighted_loss: false
+  loss_fn: 
+    name: 'BCEWithLogitsLoss'
+  optimizer: 
+    name: 'Adam'
+    weight_decay: 1e-6
+  scheduler: 
+    name: 'ReduceLROnPlateau'
+    monitor: 'val/mean_auroc'
+    interval: 'epoch'
+    frequency: 3
+    factor: 0.5
+    patience: 5

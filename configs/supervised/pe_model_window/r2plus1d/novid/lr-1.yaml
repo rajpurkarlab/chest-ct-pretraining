@@ -1,0 +1,81 @@
+experiment_name: 'rsna_window_r2plus1d_novid'
+trial_name: 'lr-1'
+phase: 'train'
+
+lightning:
+  trainer:
+    gpus: 2
+    distributed_backend: 'ddp' # put on if more than one gpu
+    max_epochs: 50
+    lr: 1e-1
+    precision: 16
+    auto_lr_find: false
+    benchmark: true
+    replace_sampler_ddp: false
+    limit_train_batches: 0.1 # for sweep over 10% of data to find best learning rate
+  checkpoint_callback:
+    monitor: 'val/mean_auroc'
+    dirpath: './data/ckpt'
+    save_last: true
+    mode: 'max'
+    save_top_k: 10
+  early_stopping_callback:
+    monitor: 'val/mean_auroc'
+    min_delta: 0.00
+    patience: 5
+    verbose: False
+    mode: 'max'
+  logger:
+    logger_type: 'WandbLogger'
+    save_dir: './data/logger/'
+    name: 'r2plus1d_r50'
+    project: 'pe_models'
+
+
+model: 
+  type: 'model_3d'
+  model_name: 'r2plus1d_r50'
+  freeze_cnn: false
+  pretrained: false
+
+data: 
+  use_hdf5: true
+  dataset: 'rsna'
+  type: 'window'    # 1d, 2d, 3d, window 
+  num_slices: 32
+  min_abnormal_slice: 4
+  min_positive_slices: 24
+  targets: 'rsna_pe_target'
+  channels: 'repeat'  # repeat, neighbor, window
+  weighted_sample: true
+  imsize: 256
+    
+transforms: 
+  type: 'imagenet'
+  Rotate:
+    rotate_limit: 20
+    p: 0.5
+  RandomCrop:
+    height: 224
+    width: 224
+  
+train: 
+  batch_size: 8    # change this with sbatch
+  num_workers: 8   # change this with sbatch
+  weighted_loss: false
+  loss_fn: 
+    name: 'BCEWithLogitsLoss'
+  optimizer: 
+    # name: 'SGD'
+    # weight_decay: 1e-3
+    # momentum: 0.9
+    # dampening: 0.9
+    name: 'Adam'
+    weight_decay: 1e-6
+  scheduler: 
+    name: 'ReduceLROnPlateau'
+    monitor: 'val_loss'
+    interval: 'epoch'
+    frequency: 3
+    factor: 0.5
+    patience: 5

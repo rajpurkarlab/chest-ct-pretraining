@@ -1,0 +1,89 @@
+experiment_name: 'rsna_window_pe_penet_min_pe_24'
+phase: 'train'
+#checkpoint: '/home/mschuang/pe_models_benchmark/data/ckpt/rsna_window_pe_penet_min_pe_24/1/2021_11_26_23_46_03/epoch=40-step=130379.ckpt'
+
+lightning:
+  trainer:
+    gpus: 4
+    distributed_backend: 'ddp'
+    max_epochs: 50
+    lr: 1e-2
+    precision: 16
+    auto_lr_find: false
+    benchmark: true
+    replace_sampler_ddp: false
+  checkpoint_callback:
+    monitor: 'val/mean_auroc'
+    dirpath: './data/ckpt'
+    save_last: true
+    mode: 'max'
+    save_top_k: 10
+  early_stopping_callback:
+    monitor: 'val/mean_auroc'
+    min_delta: 0.00
+    patience: 50
+    verbose: False
+    mode: 'max'
+  logger:
+    logger_type: 'WandbLogger'
+    save_dir: './data/logger/'
+    name: 'pe_model_3d'
+    project: 'pe_models'
+
+
+model: 
+  type: 'model_3d'
+  model_name: 'penet'
+  freeze_cnn: false
+  pretrained: true
+  model_depth: 50
+  cardinality: 32
+  num_channels: 3
+  num_classes: 600
+  init_method: null 
+  boundary_layer_name: 'classifier'
+  checkpoint: '/deep/group/aihc-bootcamp-fall2021/chest-ct-clip/ckpt/penet/stanford_no_pretrain.ckpt'
+
+data: 
+  use_hdf5: true
+  dataset: 'rsna'
+  type: 'window'    # 1d, 2d, 3d, window 
+  num_slices: 24
+  min_abnormal_slice: 4
+  min_positive_slices: 24
+  stride: 24
+  targets: 'rsna_pe_target'
+  channels: 'repeat'  # repeat, neighbor, window
+  weighted_sample: true
+  imsize: 256
+  positive_only: true 
+    
+transforms: 
+  type: 'imagenet'
+  Rotate:
+    rotate_limit: 20
+    p: 0.5
+  RandomCrop:
+    height: 224
+    width: 224
+  
+train: 
+  batch_size: 4
+  num_workers: 48
+  weighted_loss: false
+  loss_fn: 
+    name: 'BinaryFocalLoss'
+    gamma: 2
+    size_average: true
+  optimizer: 
+    name: 'SGD'
+    weight_decay: 1e-3
+    momentum: 0.9
+    dampening: 0.9
+  scheduler: 
+    name: 'CosineWarmup' 
+    monitor: 'val/mean_auroc'
+    interval: 'step'
+    frequency: 1
+    lr_warmup_steps: 10000 
+    lr_decay_step: 600000

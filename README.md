@@ -57,7 +57,7 @@ $ python pe_models/preprocess/lidc.py
 
 You can then set the `type` in an experiment YAML to `lidc-window` or `lidc-2d` to train on the LIDC dataset.
 
-## Training the model
+## Training and Evaluation
 
 To train a model, run the following: 
 
@@ -70,6 +70,16 @@ For more documentation, please run:
 ```bash 
 python run.py --help
 ```
+
+To test a model, use the `--test` flag, making sure that either the `--checkpoint` flag is specified or that the config YAML contains a **checkpoint** entry:
+
+```bash
+python run.py --config <path_to_config_file> --checkpoint <path_to_ckpt> --test
+```
+
+To featurize all studies in a dataset (to run a 1d model for example), use the `--test_split all` flag
+
+Example configs can be found in **./configs/**
 
 ### Run hyperparameter sweep with wandb
 

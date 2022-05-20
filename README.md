@@ -8,7 +8,7 @@ with the right CUDA version, then clone this repository and install the
 dependencies.  
 
 ```bash
-$ git clone git@github.com:marshuang80/pe_models_benchmark.git
+$ git clone git@github.com:rajpurkarlab/2021-fall-chest-ct.git
 $ cd pe_models_benchmark 
 $ conda env create -f environment.yml
 ```

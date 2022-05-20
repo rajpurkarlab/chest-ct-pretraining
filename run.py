@@ -80,8 +80,9 @@ def parse_configs():
         cfg.experiment_name = f"{cfg.experiment_name}_{cfg.trial_name}"
     if not OmegaConf.is_none(cfg.data, 'sample_frac'):
         cfg.experiment_name = f"{cfg.experiment_name}_frac{args.sample_frac}"
-    if cfg.data.positive_only:
-        cfg.experiment_name = f"{cfg.experiment_name}_positive_only"
+    if not OmegaConf.is_none(cfg.data, 'positive_only'):
+        if cfg.data.positive_only:
+            cfg.experiment_name = f"{cfg.experiment_name}_positive_only"
     if cfg.data.weighted_sample:
         cfg.experiment_name = f"{cfg.experiment_name}_weighted_sample"
 

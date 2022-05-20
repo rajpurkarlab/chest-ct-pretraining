@@ -94,6 +94,7 @@ class PEDatasetWindow(PEDatasetBase):
         super().__init__(cfg, split)
 
         self.df_full = pd.read_csv(RSNA_TRAIN_CSV)
+        self.cfg = cfg
 
         if OmegaConf.is_none(cfg.data, 'stride'):
             window_labels_csv = RSNA_DATA_DIR / f"rsna_window_{self.cfg.data.num_slices}_min_abnormal_{self.cfg.data.min_abnormal_slice}.csv"
@@ -111,6 +112,15 @@ class PEDatasetWindow(PEDatasetBase):
             print('='*80)
             print('\nCreating windowed dataset\n')
             print('-'*80)
+            
+            # defaults
+            if OmegaConf.is_none(self.cfg.data, 'stride'):
+                self.cfg.data.stride = 24
+            if OmegaConf.is_none(self.cfg.data, 'min_abnormal_slice'):
+                self.cfg.min_abnormal_slice = 4
+            if OmegaConf.is_none(self.cfg.data, 'num_slices'):
+                self.cfg.num_slices = 12 
+
             self.df = preprocess.rsna.process_window_df(
                 self.df_full, self.cfg.data.num_slices, self.cfg.data.min_abnormal_slice, self.cfg.data.stride)
 
@@ -227,6 +237,14 @@ class PEDatasetWindowStanford(PEDatasetBase):
             print('='*80)
             print('\nCreating windowed dataset\n')
             print('-'*80)
+
+            # defaults
+            if OmegaConf.is_none(self.cfg.data, 'stride'):
+                self.cfg.data.stride = 24
+            if OmegaConf.is_none(self.cfg.data, 'min_abnormal_slice'):
+                self.cfg.min_abnormal_slice = 4
+            if OmegaConf.is_none(self.cfg.data, 'num_slices'):
+                self.cfg.num_slices = 12 
             self.df = preprocess.stanford.process_window_df(
                 self.df_full, self.cfg.data.num_slices, self.cfg.data.min_abnormal_slice, self.cfg.data.stride)
 
@@ -294,6 +312,97 @@ class PEDatasetWindowStanford(PEDatasetBase):
         class_weight = [(1 / neg_class_count) * 0.7 , (1 / pos_class_count) * 0.3]
         #class_weight = [0.7, 0.3]
         weights = [class_weight[i] for i in self.df['Label']]
+
+        weights = torch.Tensor(weights).double()
+        sampler = torch.utils.data.sampler.WeightedRandomSampler(
+            weights, num_samples=len(weights), replacement=True
+        )
+
+        return sampler
+
+class LIDCDatasetWindow(PEDatasetBase):
+
+    def __init__(self, cfg, split="train", transform=None):
+        super().__init__(cfg, split)
+
+        self.df_full = pd.read_csv(LIDC_TRAIN_CSV)
+
+        window_labels_csv = LIDC_DATA_DIR / f"lidc_window_{self.cfg.data.num_slices}_min_abnormal_{self.cfg.data.min_abnormal_slice}.csv"
+        if window_labels_csv.is_file(): 
+            # literal_eval to convert str to list
+            self.df = pd.read_csv(window_labels_csv, converters={
+                LIDC_NOD_SLICE_COL: literal_eval, 
+                LIDC_INSTANCE_COL: literal_eval, 
+                LIDC_INSTANCE_ORDER_COL: literal_eval
+            })
+        else:
+            print('='*80)
+            print('\nCreating windowed dataset\n')
+            print('-'*80)
+
+            # defaults
+            if OmegaConf.is_none(self.cfg.data, 'stride'):
+                self.cfg.data.stride = 24
+            if OmegaConf.is_none(self.cfg.data, 'min_abnormal_slice'):
+                self.cfg.min_abnormal_slice = 4
+            if OmegaConf.is_none(self.cfg.data, 'num_slices'):
+                self.cfg.num_slices = 12 
+
+            self.df = preprocess.lidc.process_window_df(
+                self.df_full, self.cfg.data.num_slices, self.cfg.data.min_abnormal_slice)
+
+
+        if split != "all":
+            self.df = self.df[self.df[LIDC_SPLIT_COL] == split]
+
+    def __getitem__(self, index):
+
+        window = self.df.iloc[index]
+
+        # read from hdf5 
+        if self.cfg.data.use_hdf5: 
+            study_name = window[LIDC_STUDY_COL]
+            slice_idx = sorted(window[LIDC_INSTANCE_ORDER_COL])
+            series = self.read_from_hdf5(study_name, slice_idx, hdf5_path=LIDC_STUDY_HDF5)
+
+            # TODO: 3D dataset only support repeat channel right now
+            series = self.windowing(series, -600, 1500)
+        # read from raw datad
+        else:
+            raise NotImplementedError
+            # series = np.stack(
+            #     [self.process_slice(pd.Series({RSNA_INSTANCE_PATH_COL: path})) for \
+            #         path in window[RSNA_INSTANCE_PATH_COL]]
+            # )
+
+        series = self.augment_series(series)  # TODO: check placement & check if ablemutation support 3D
+
+        x = torch.from_numpy(series).float()
+        if x.shape[0] < self.cfg.data.num_slices:
+            x = self.fill_series_to_num_slicess(x, self.cfg.data.num_slices)
+        x = torch.permute(x, (1, 0, 2, 3))
+        
+        # check dimention
+        if x.shape[0] == 1:
+            x = x.squeeze()
+            x = x.expand(3, *list(x.shape))
+        x = x.type(torch.FloatTensor)
+        
+        # get labels
+        y = torch.tensor(window['label'])
+        y = y.unsqueeze(-1).float()
+
+        return x, y, (window[LIDC_STUDY_COL], (window['index']))
+
+    def __len__(self):
+        return len(self.df)
+
+    def get_sampler(self):
+
+        neg_class_count = (self.df['label'] == 0).sum().item()
+        pos_class_count = (self.df['label'] == 1).sum().item()
+        class_weight = [1 / neg_class_count, 1 / pos_class_count]
+        weights = [class_weight[i] for i in self.df['label']]
 
         weights = torch.Tensor(weights).double()
         sampler = torch.utils.data.sampler.WeightedRandomSampler(

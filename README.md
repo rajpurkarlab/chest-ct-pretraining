@@ -5,7 +5,8 @@ Benchmarking models for PE detection
 0. [System Requirements](#SystemRequirements)
 0. [Installation](#Installation)
 0. [Datasets](#Datasets)
-0. [Usage](#usage)
+0. [Usage](#Usage)
+0. [Demo](#Demo)
 
 ## System Requirements
 
@@ -115,3 +116,22 @@ To train/test model on custom datasets:
 1. Please ensure that your data adhere to the same format as the RSNA/LIDC dataset. (See [Example](https://stanfordmedicine.box.com/s/nlatp1dgg47qry1g7hhr0n87mlavj887))
 2. Create a dataloader similar to RSNA/LIDC in ./datasets and update ./datasets/__init__.py to include the name of your custom dataloader. 
 3. Make sure the *data.type* in your config file points to the name of your dataloader. 
+
+## Demo
+
+To run train/test script on a simulated demo dataset, use: 
+
+```
+python run.py --config ./data/demo/resnet18_demo.yaml --checkpoint <path_to_ckpt> --test
+```
+
+You should expect the following results:
+
+```
+{'test/mean_auprc': 0.9107142686843872,
+ 'test/mean_auroc': 0.9166666865348816,
+ 'test/negative_exam_for_pe_auprc': 0.9107142686843872,
+ 'test/negative_exam_for_pe_auroc': 0.9166666865348816,
+ 'test_loss': 0.6920164227485657,
+ 'test_loss_epoch': 0.6920164227485657}
+ ```

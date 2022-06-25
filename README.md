@@ -135,3 +135,4 @@ You should expect the following results:
  'test_loss': 0.6920164227485657,
  'test_loss_epoch': 0.6920164227485657}
  ```
+With a GPU, this should take less than 10 minutes to run. 

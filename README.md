@@ -1,17 +1,32 @@
 # PE Models Benchmark 
 Benchmarking models for PE detection 
 
-## Usage
+## System Requirements
 
-Start by [installing PyTorch 1.7.1](https://pytorch.org/get-started/locally/)
-with the right CUDA version, then clone this repository and install the
-dependencies.  
+### Hardware requirements
 
-```bash
-$ git clone git@github.com:rajpurkarlab/2021-fall-chest-ct.git
-$ cd pe_models_benchmark 
-$ conda env create -f environment.yml
-```
+The data processing steps requires only a standard computer with enough RAM to support the in-memory operations.
+
+For training and testing models, a computer with sufficient GPU memory is recommended. 
+
+## Software requirements
+### OS requirements
+All models have been trained and tested on a Linux system (Ubuntu 16.04)
+
+### Python dependencies
+
+All dependencies can be found in **environment.yml**
+
+
+## Installation 
+
+1. Please install [Anaconda](https://docs.conda.io/en/latest/miniconda.html) in order to create a Python environment.
+2. Clone this repo (from the command-line: `git clone git@github.com:rajpurkarlab/2021-fall-chest-ct.git`).
+3. Create the environment: `conda env create -f environment.yml`.
+4. Activate the environment: `source activate pe_models`.
+5. Install [PyTorch 1.7.1](https://pytorch.org/get-started/locally/) with the right CUDA version.
+
+Installation should take less than 10 minutes with stable internet. 
 
 ## Dataset 
 
@@ -89,3 +104,8 @@ Example hyperparameter sweep configs for each model can be found in **./configs/
 wandb sweep <path_to_sweep_config>
 wandb agent <sweep-id>
 ```
+### Custom dataset: 
+To train/test model on custom datasets: 
+1. Please ensure that your data adhere to the same format as the RSNA/LIDC dataset. (See [Example](https://stanfordmedicine.box.com/s/nlatp1dgg47qry1g7hhr0n87mlavj887))
+2. Create a dataloader similar to RSNA/LIDC in ./datasets and update ./datasets/__init__.py to include the name of your custom dataloader. 
+3. Make sure the *data.dataset* in your config file points to the name of your dataloader. 

@@ -114,4 +114,4 @@ wandb agent <sweep-id>
 To train/test model on custom datasets: 
 1. Please ensure that your data adhere to the same format as the RSNA/LIDC dataset. (See [Example](https://stanfordmedicine.box.com/s/nlatp1dgg47qry1g7hhr0n87mlavj887))
 2. Create a dataloader similar to RSNA/LIDC in ./datasets and update ./datasets/__init__.py to include the name of your custom dataloader. 
-3. Make sure the *data.dataset* in your config file points to the name of your dataloader. 
+3. Make sure the *data.type* in your config file points to the name of your dataloader. 

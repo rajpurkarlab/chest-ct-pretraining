@@ -2,19 +2,21 @@ from pathlib import Path
 
 PROJECT_DATA_DIR = Path("<Path to project data directory>")
 if not PROJECT_DATA_DIR.is_dir():
-    raise Exception(
+    print(
         "\nProject data directory not specified. Please update data path in "
         + "PROJECT_DATA_DIR in pe_models/constants.py "
     )
+    PROJECT_DATA_DIR = Path("./data/")
 
 ## RSNA
 RSNA_DATA_DIR = PROJECT_DATA_DIR / "rsna"  # check why isn't this just rsna
 if not RSNA_DATA_DIR.is_dir():
-    raise Exception(
+    print(
         "\nPlease download the RSNA dataset from \n"
         + "    https://www.kaggle.com/c/rsna-str-pulmonary-embolism-detection\n"
         + f"and place the downloaded dataset in {PROJECT_DATA_DIR}"
     )
+    RSNA_DATA_DIR = PROJECT_DATA_DIR / 'demo'
 
 RSNA_TRAIN_DIR = RSNA_DATA_DIR / "train"
 RSNA_ORIGINAL_TRAIN_CSV = RSNA_DATA_DIR / "train.csv"

@@ -55,8 +55,13 @@ class PEDatasetBase(Dataset):
 
         return pixel_array
 
-    def process_slice(self, slice_info: pd.Series):
+    def process_slice(self, slice_info: pd.Series, train_dir:str = None):
         """process slice with windowing, resize and tranforms"""
+
+        if train_dir is None: 
+            TRAIN_DIR = RSNA_TRAIN_DIR
+        else: 
+            TRAIN_DIR = train_dir
 
         # window
         if self.cfg.data.channels == "repeat":

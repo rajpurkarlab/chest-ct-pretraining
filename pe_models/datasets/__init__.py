@@ -12,4 +12,5 @@ ALL_DATASETS = {
     "lidc-window": dataset_3d.LIDCDatasetWindow,
     "lidc-2d": dataset_2d.LIDCDataset2D,
     "lidc-1d": dataset_1d.LIDCDataset1D,
+    "demo": dataset_2d.DemoDataset2D,
 }

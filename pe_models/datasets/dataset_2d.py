@@ -319,3 +319,70 @@ class PEDataset2DStanford(PEDatasetBase):
             weights, num_samples=len(weights), replacement=True
         )
         return sampler
+
+
+class DemoDataset2D(PEDatasetBase):
+    def __init__(self, cfg, split="train", transform=None): 
+        super().__init__(cfg, split)
+
+        self.df = pd.read_csv('./data/demo/demo.csv')
+        self.transform = transform
+
+        print('='*80)
+        print(f'Weighted sample: {cfg.data.weighted_sample}')
+        print(f'Positive only: {cfg.data.positive_only}')
+        print('='*80)
+
+    def __getitem__(self, index):
+
+        # get slice row
+        instance_info = self.df.iloc[index]
+
+        ct_slice = self.process_slice(instance_info, './data/demo')
+
+        # transform
+        if ct_slice.shape[0] == 3:
+            ct_slice = np.transpose(ct_slice, (1,2,0))
+        else: 
+            ct_slice = np.expand_dims(ct_slice, -1)
+
+        if self.transform is not None:
+            x = self.transform(image=ct_slice)["image"]
+        else:
+            x = torch.Tensor(ct_slice)
+            x = x.permute(2,0,1)
+
+        # check dimention
+        if x.shape[0] == 1:  # for repeat
+            c, w, h = list(x.shape)
+            x = x.expand(3, w, h) 
+        x = x.type(torch.FloatTensor)
+
+        # get labels
+        targets = RSNA_TARGET_TYPES[self.cfg.data.targets]
+        y = instance_info[targets].astype(float).item()
+        y = torch.tensor([y])
+
+        # get series id
+        instance_id = instance_info[RSNA_INSTANCE_COL]
+        study_id = instance_info[RSNA_STUDY_COL]
+
+        return x, y, f'{instance_id}-{study_id}'
+
+    def __len__(self):
+        return len(self.df)
+
+    def get_sampler(self):
+
+        neg_class_count = (self.df[RSNA_PE_SLICE_COL] == 0).sum().item()
+        pos_class_count = (self.df[RSNA_PE_SLICE_COL] == 1).sum().item()
+        class_weight = [1 / neg_class_count, 1 / pos_class_count]
+        weights = [class_weight[i] for i in self.df[RSNA_PE_SLICE_COL]]
+
+        weights = torch.Tensor(weights).double()
+        sampler = torch.utils.data.sampler.WeightedRandomSampler(
+            weights, num_samples=len(weights), replacement=True
+        )
+        return sampler
+
+

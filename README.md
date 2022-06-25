@@ -2,7 +2,7 @@
 Benchmarking models for PE detection 
 
 ## Table of Contents
-0. [System Requirements](#System Requirements)
+0. [System Requirements](#SystemRequirements)
 0. [Installation](#Installation)
 0. [Datasets](#Datasets)
 0. [Usage](#usage)

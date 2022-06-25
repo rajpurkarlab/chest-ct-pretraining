@@ -9,11 +9,11 @@ The data processing steps requires only a standard computer with enough RAM to s
 
 For training and testing models, a computer with sufficient GPU memory is recommended. 
 
-## Software requirements
-### OS requirements
+### Software requirements
+#### OS requirements
 All models have been trained and tested on a Linux system (Ubuntu 16.04)
 
-### Python dependencies
+#### Python dependencies
 
 All dependencies can be found in **environment.yml**
 

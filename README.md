@@ -1,6 +1,12 @@
 # PE Models Benchmark 
 Benchmarking models for PE detection 
 
+## Table of Contents
+0. [System Requirements](#System Requirements)
+0. [Installation](#Installation)
+0. [Datasets](#Datasets)
+0. [Usage](#usage)
+
 ## System Requirements
 
 ### Hardware requirements
@@ -28,7 +34,7 @@ All dependencies can be found in **environment.yml**
 
 Installation should take less than 10 minutes with stable internet. 
 
-## Dataset 
+## Datasets
 
 ### RSNA
 
@@ -72,7 +78,7 @@ $ python pe_models/preprocess/lidc.py
 
 You can then set the `type` in an experiment YAML to `lidc-window` or `lidc-2d` to train on the LIDC dataset.
 
-## Training and Evaluation
+## Usage
 
 To train a model, run the following: 
 

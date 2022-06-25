@@ -1,0 +1,13 @@
+,StudyInstanceUID,SeriesInstanceUID,SOPInstanceUID,pe_present_on_image,negative_exam_for_pe,Split,RescaleIntercept,RescaleSlope
+0,6897fa9de148,2bfbb7fd2e8b,baedb900c69c,1,1,train,-1024.0,1.0
+1,6897fa9de148,2bfbb7fd2e8b,52b6b0b793bb,1,1,train,-1024.0,1.0
+2,6897fa9de148,2bfbb7fd2e8b,1997c99c9d59,0,0,train,-1024.0,1.0
+3,6897fa9de148,2bfbb7fd2e8b,c6f29ac6659b,0,0,train,-1024.0,1.0
+4,6897fa9de148,2bfbb7fd2e8b,487d9ab5531f,1,1,valid,-1024.0,1.0
+5,6897fa9de148,2bfbb7fd2e8b,5fe975eb5ce9,1,1,valid,-1024.0,1.0
+6,6897fa9de148,2bfbb7fd2e8b,4f03aef72206,0,0,valid,-1024.0,1.0
+7,6897fa9de148,2bfbb7fd2e8b,bc1390934263,0,0,valid,-1024.0,1.0
+8,6897fa9de148,2bfbb7fd2e8b,db937353ea10,1,1,test,-1024.0,1.0
+9,6897fa9de148,2bfbb7fd2e8b,2c8ed843c858,1,1,test,-1024.0,1.0
+10,6897fa9de148,2bfbb7fd2e8b,945e7e32955c,0,0,test,-1024.0,1.0
+11,6897fa9de148,2bfbb7fd2e8b,d9e3d9934410,0,0,test,-1024.0,1.0

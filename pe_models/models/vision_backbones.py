@@ -6,8 +6,6 @@ import timm
 
 from functools import partial
 from .backbones3d import resnet3d, penet_classifier
-# import sys
-# sys.path.append("/deep/u/alexke/pe_models_benchmark/pe_models/")
 from ..utils import download_file_from_google_drive
 from .backbones2d import vit
 from torchvision import models as models_2d
@@ -401,15 +399,6 @@ class LinearClassifier(nn.Module):
         feat3d = F.adaptive_avg_pool3d(feat3d, (1,1,1)) # [B,C,1,1,1]
         feat3d = feat3d.view(B, self.param['feature_size']) # [B,C]
 
-#         if self.use_l2_norm:
-#             feat3d = F.normalize(feat3d, p=2, dim=1)
-        
-#         if self.use_final _bn:
-#             logit = self.final_fc(self.final_bn(feat3d))
-#         else:
-#             logit = self.final_fc(feat3d)
-
-        # return logit, feat3d
         return feat3d
 
     def _initialize_weights(self, module):
@@ -429,11 +418,6 @@ def coclr_vicc_both(
     model = LinearClassifier(
                 network=net, 
     )
-                # num_class=args.num_class,
-                # dropout=args.dropout,
-                # use_dropout=args.use_dropout,
-                # use_final_bn=args.final_bn,
-                # use_l2_norm=args.final_norm)
     model.final_fc = Identity()
 
     if pretrained:

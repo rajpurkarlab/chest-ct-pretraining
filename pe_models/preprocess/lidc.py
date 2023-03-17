@@ -182,50 +182,10 @@ if __name__ == "__main__":
                 + f"{lidc[lidc[LIDC_SPLIT_COL] == split][LIDC_PATIENT_COL].nunique()}"
             )
 
-        # # add instance path
-        # rsna[RSNA_INSTANCE_PATH_COL] = rsna.apply(
-        #     lambda x: f"{x[RSNA_STUDY_COL]}/{x[RSNA_SERIES_COL]}/{x[RSNA_INSTANCE_COL]}.dcm",
-        #     axis=1,
-        # )
-
-#         # create dataset and loader to extract metadata
-#         dataset = Metadata(rsna)
-#         loader = DataLoader(
-#             dataset, batch_size=1, shuffle=False, num_workers=12, collate_fn=lambda x: x
-#         )
-
-#         # get metadata
-#         meta = []
-#         for data in tqdm.tqdm(loader, total=len(loader)):
-#             meta += [data[0]]
-#         meta_df = pd.concat(meta, axis=0, ignore_index=True)
-
         # get slice number
         unique_studies = pd.DataFrame(lidc[LIDC_STUDY_COL].value_counts()).reset_index()
         unique_studies.columns = [LIDC_STUDY_COL, LIDC_NUM_SLICES_COL]
         lidc = lidc.merge(unique_studies, on=LIDC_STUDY_COL)
-
-#         # indicate neiborig slices based on patient position
-#         study_dfs = []
-#         for study_name in tqdm.tqdm(
-#             rsna[RSNA_STUDY_COL].unique(), total=rsna[RSNA_STUDY_COL].nunique()
-#         ):
-#             study_df = rsna[rsna[RSNA_STUDY_COL] == study_name].copy()
-
-#             # order study instances 
-#             study_df = study_df.sort_values("ImagePositionPatient_2")
-#             study_df[RSNA_INSTANCE_ORDER_COL] = np.arange(len(study_df))
-
-#             # get neighbors paths 
-#             instance_paths = study_df[RSNA_INSTANCE_PATH_COL].tolist()
-#             instance_paths = [instance_paths[0]] + instance_paths + [instance_paths[-1]]
-#             study_df[RSNA_PREV_INSTANCE_COL] = instance_paths[:-2]
-#             study_df[RSNA_NEXT_INSTANCE_COL] = instance_paths[2:]
-
-#             study_dfs.append(study_df)
-
-#         rsna = pd.concat(study_dfs, axis=0, ignore_index=True)
-
         
         # create windowed dataset: default window_size=24, min_abnormal_slice: 4
         window_df = process_window_df(lidc) 

@@ -1,5 +1,5 @@
-# PE Models Benchmark 
-Benchmarking models for PE detection 
+# Video pretraining advances 3D deep learning on chest CT tasks
+This repository contains code to train and evaluate models on the RSNA PE dataset and the LIDC-IDRI dataset.
 
 ## Table of Contents
 0. [System Requirements](#SystemRequirements)

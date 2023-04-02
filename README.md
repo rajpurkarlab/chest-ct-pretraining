@@ -1,4 +1,4 @@
-# Video pretraining advances 3D deep learning on chest CT tasks
+# Video pretraining advances 3D deep learning on chest CTs
 This repository contains code to train and evaluate models on the RSNA PE dataset and the LIDC-IDRI dataset.
 
 ## Table of Contents

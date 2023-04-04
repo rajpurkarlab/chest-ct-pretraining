@@ -1,5 +1,6 @@
 # Video pretraining advances 3D deep learning on chest CTs
-This repository contains code to train and evaluate models on the RSNA PE dataset and the LIDC-IDRI dataset.
+
+This repository contains code to train and evaluate models on the RSNA PE dataset and the LIDC-IDRI dataset for our paper [Video pretraining advances 3D deep learning on chest CTs](https://arxiv.org/abs/2304.00546).
 
 ## Table of Contents
 0. [System Requirements](#SystemRequirements)
@@ -107,7 +108,7 @@ Example configs can be found in **./configs/**
 
 Example hyperparameter sweep configs for each model can be found in **./configs/**
 
-```
+```bash
 wandb sweep <path_to_sweep_config>
 wandb agent <sweep-id>
 ```
@@ -121,7 +122,7 @@ To train/test model on custom datasets:
 
 To run train/test script on a simulated demo dataset, use: 
 
-```
+```bash
 python run.py --config ./data/demo/resnet18_demo.yaml --checkpoint <path_to_ckpt> --test
 ```
 
@@ -134,5 +135,21 @@ You should expect the following results:
  'test/negative_exam_for_pe_auroc': 0.9166666865348816,
  'test_loss': 0.6920164227485657,
  'test_loss_epoch': 0.6920164227485657}
- ```
+```
 With a GPU, this should take less than 10 minutes to run. 
+
+## Citation
+
+If our work was useful in your research, please consider citing
+
+```bibtex
+@article{ke2023video,
+    title={Video Pretraining Advances 3D Deep Learning on Chest CT Tasks}, 
+    author={Alexander Ke and Shih-Cheng Huang and Chloe P O'Connell and Michal Klimont and Serena Yeung and Pranav Rajpurkar},
+    booktitle={Medical Imaging with Deep Learning},
+    year={2023},
+    eprint={2304.00546},
+    archivePrefix={arXiv},
+    primaryClass={eess.IV}
+}
+```
